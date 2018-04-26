@@ -33,10 +33,9 @@ node('localhost') {
         }
 
         stage('Build application images ') {
-            sh '''
-               docker build -t ${application} ${application}/
+            sh " ls -l ${application} "
+            sh " sudo docker build -t ${application} ${application}/ "
                
-            '''
         }
         
         stage('Start application') {
