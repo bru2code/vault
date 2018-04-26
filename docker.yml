@@ -1,0 +1,36 @@
+---
+ - hosts: localhost
+   connection: local
+   tasks:
+    - name: group creation
+      group:
+        name: dockeru
+        state: present
+
+    - name: local user creation
+      user:
+        name: dockeru
+        comment: "Local dockeru user to manage docker"
+        state:  present
+        generate_ssh_key: yes
+        group: dockeru
+        ssh_key_file: .ssh/id_rsa
+        ssh_key_bits: 2048
+
+    - name: Allow sudo access for dockeru group
+      lineinfile: 
+        path: /etc/sudoers
+        state: present
+        regexp: '^%dockeru'
+        line: '%dockeru ALL=(root) NOPASSWD: /usr/bin/docker'
+        validate: '/usr/sbin/visudo -cf %s'
+    - name: Check /opt/jslave is accessible by dockeru
+      file:
+        path: /opt/jslave
+        state: directory
+        mode: "o+rwx"
+        recurse:  yes
+      register: mode_changed 
+      
+    - debug:
+        var: mode_changed 
